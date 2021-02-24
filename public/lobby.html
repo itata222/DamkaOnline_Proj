@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
+    <link rel="icon" href="./images/icon.png">
+    <link rel="stylesheet" href="./damka-game.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Langar&display=swap" rel="stylesheet">
+    <title>Lobby</title>
+</head>
+<body>
+    <img src="./images/81qK4Te+6cL._AC_SL1500_.jpg" alt="damka-board">
+    <div class="lobby">
+        <div id="sidebar" class="chat__sidebar">
+
+        </div>
+        <div class="chat__leaderboard">
+            <h2 id="leadersHeadline" class="firstHeadline">Top 10 Players</h2>
+            <div class="leaders-container">
+               <ol>
+                   <!-- do what you did at chat app -->
+                   <li>Itamar</li>
+                   <li>Itamar</li>
+                   <li>Itamar</li>
+                   <li>Itamar</li>
+                   <li>Itamar</li>
+                   <li>Itamar</li>
+                   <li>Itamar</li>
+                   <li>Itamar</li>
+                   <li>Itamar</li>
+                   <li>Itamar</li>
+               </ol>
+            </div>
+            <div class="myScore">My Score: {{myScore}}</div>
+        </div>
+        <div class="chat__conversation">
+            <div id="messages" class="chat__messages">
+
+            </div>
+            <div class="compose">
+                <form id="formSocket">
+                    <input type="text" id="formInput" required autocomplete="off">
+                    <button id="increment">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script id="message-template" type="text/html">
+        <div class="message">
+            <p>
+               <span class="message__name"> {{username}}</span>
+               <span class="message__meta"> {{createdAt}}</span> 
+            </p>
+            <p>{{message}} </p>
+        </div>
+    </script>
+
+    <script id="sidebar-template" type="text/html">
+        <h2 class="room-title">Checkers World - Lobby</h2>
+        <h3 class="list-title">Available Players</h3>
+        <ul class="users">
+            {{#users}}
+                <li> <span class="available-username">{{username}}- 128 points</span> <form> <button>Invite To Play</button></form></li>
+            {{/users}}
+        </ul>
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./lobby.js"></script>
+</body>
+</html>

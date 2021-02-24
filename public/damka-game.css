@@ -1,0 +1,402 @@
+*{
+    box-sizing: border-box;
+    font-family: 'Langar', cursive, sans-serif;
+}
+.centered-form {
+    width: 100%;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.centered-form__box {
+    box-shadow: 0px 0px 17px 1px #1D1F26;
+    background: #F7F7FA;
+    padding: 24px;
+    width: 250px;
+    background: #333744;
+}
+
+.centered-form__box h1{
+    color: black;
+    margin-top:0 ;
+    margin-bottom: 0.5rem;
+}
+
+.centered-form button {
+    width: 100%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: chocolate;
+    padding: 1.6rem;
+    display: block;
+    border: none;
+}
+
+ .centered-form button:hover{
+     text-decoration: none;
+     color: cornsilk;
+     background-color: chocolate;
+  }
+
+.centered-form input {
+    margin-top: 6px;
+    margin-bottom: 16px;
+    width: 100%;
+}
+.lobby {
+    display: grid;
+    grid-template-columns: 35% 65%;
+    grid-template-rows: 47% 48%;
+    grid-template-areas:
+    "players leaders"
+    "players chat";
+    gap: 3px;
+}
+
+.chat__sidebar {
+    grid-area: players;
+    height: 100vh;
+    color: white;
+    background: #333744;
+    box-shadow: 0px 0px 12px 1px #1D1F26;
+    width: 100%;
+    overflow-y: auto
+}
+
+/* Chat styles */
+
+.chat__conversation {
+    grid-area: chat;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 95%;
+    margin: 0 auto;
+    margin-top: 1.5rem;
+    box-shadow: 0px 0px 12px 1px #333744;
+    /* border: 1px solid black; */
+}
+
+.chat__messages {
+    flex-grow: 1;
+    padding: 24px 24px 0 24px;
+    overflow-y: auto;
+}
+
+/* Message Styles */
+.chat__leaderboard{
+    grid-area: leaders;
+    height: 100%;
+    width: 95%;
+    margin: 0 auto;
+    background-color: chocolate;
+    box-shadow: 0px 0px 12px 1px brown;
+    color: white;
+    display: grid;
+    grid-template-rows: 20% 65% 15%;
+}
+.chat__leaderboard h2{
+    text-align: center;
+    margin: 0.5rem auto;
+    padding-right: 3rem;
+    color: #2c2f3a;
+}
+.chat__leaderboard .myScore{
+    text-align: center;
+    width: 50%;
+    margin:auto;
+    margin-top: 0.7rem;
+    /* border-top: 1px solid black; */
+    color: #2c2f3a;
+    padding-right: 3rem;
+}
+.leaders-container{
+    color: white;
+    height: 100%;
+    margin: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+}
+.leaders-container ol{
+    margin-top: -0.7rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+    justify-items: center;
+}
+.leaders-container li{
+    text-align: center;
+    color: white;
+    font-size: 1.2rem;
+    width: 50%;
+    margin-top: 0.5rem;
+    margin-bottom: 0.1rem;
+}
+.message {
+    margin-bottom: 16px;   
+}
+
+.message__name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.message__meta {
+    color: #777;
+    font-size: 14px;
+}
+
+.message p {
+    margin: 0;
+}
+
+/* Message Composition Styles */
+
+.compose {
+    display: flex;
+    flex-shrink: 0;
+    margin-top: 16px;
+    padding: 24px;
+}
+
+.compose form {
+    display: flex;
+    flex-grow: 1;
+    margin-right: 16px;
+}
+
+.compose input {
+    border: 1px solid #eeeeee;
+    width: 100%;
+    padding: 12px;
+    margin: 0 16px 0 0;
+    flex-grow: 1;
+}
+
+.compose button {
+    color: white;
+    width: 5rem;
+    border: none;
+    font-size: 14px;
+    background-color: brown;
+    cursor: pointer;
+}
+/* Chat Sidebar Styles */
+
+.room-title {
+    font-weight: 400;
+    font-size: 22px;
+    background: #2c2f3a;
+    padding: 24px;   
+}
+
+.list-title {
+    font-weight: 500;
+    font-size: 18px;
+    margin-bottom: 4px;
+    padding: 12px 24px 0 24px;
+    color: white;
+}
+
+.users {
+    list-style-type: none;
+    font-weight: 300;
+    padding: 12px 24px 0 24px;
+}
+/* .available-icon{
+    border: 1px solid green;
+    height: 20px;
+    width: 20px;
+    background-color: green;
+    border-radius: 50%;
+    display: inline-block;
+} */
+
+.available-username{
+    margin-left: 0;
+}
+.users form{
+    margin-left: 2rem;
+    display: inline-block;
+}
+/* -------------------------------------- */
+img{
+    opacity: 0.2;
+    margin: 0 auto;
+    height: 95vh;
+    width: 95vw;
+    z-index: -1;
+    position: fixed;
+}
+.welcome{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    width: 70%;
+    height: 50%;
+    border: 2px solid black;
+}
+.welcome .headline{
+    flex-basis: 20%;
+    margin: 1rem auto;
+    text-align: center;
+    color: brown;
+}
+.welcome .headline span{
+    font-size: larger;
+}
+.welcome .expend-knowledge{
+    flex-basis: 50%;
+    width: 80%;
+    margin: 0 auto 0;
+    color:chocolate;
+    font-size: larger;
+}
+.welcome .expend-knowledge h3{
+    margin: 2rem auto;
+    width: fit-content;
+    justify-self: center;
+    color: chocolate;
+}
+.welcome #play-button{
+    flex-basis: 30%;
+    color: chocolate;
+    background-color: cornsilk;
+    border: 1px solid black;
+    margin: 2rem auto;
+    padding: 0;
+    font-size: 2.5rem;
+}
+.welcome #play-button:hover{
+    flex-basis: 30%;
+    color: cornsilk;
+    background-color: chocolate;
+    cursor: pointer;
+}
+.welcome #play-button a{
+   text-decoration: none;
+   color: black;
+   padding: 2rem;
+   display: block;
+   width: auto;
+}
+.welcome #play-button a:hover{
+    text-decoration: none;
+    color: cornsilk;
+    background-color: chocolate;
+ }
+ /* ---------------welcome page-------------------- */
+ .firstHeadline{
+    width: fit-content;
+    margin: 0.5rem auto;
+    color: black;
+ }
+ .secondHeadline{
+    width: fit-content;
+    margin: 0.5rem auto;
+    color: chocolate;
+    }
+.thirdHeadline{
+    width: fit-content;
+    margin: 0.5rem auto;
+    color: firebrick;
+}
+/* ---------------headline---------------- */
+.white-turn{
+    position: absolute;
+    top: 47vh;
+    left: 5rem;
+    color: black;
+    font-size: 50px;
+}
+.black-turn{
+    position: absolute;
+    top: 47vh;
+    right: 5rem;
+    color: black;
+    font-size: 50px;
+}
+.none{
+    display: none;
+}
+.cell{
+    width: calc(33rem/8);
+    height: calc(33rem/8);
+}
+.cell:hover{
+    opacity: 0.8;
+}
+.black{
+    background-color: grey;
+}
+.white{
+    background-color: blanchedalmond;
+}
+#board{
+    margin: 1rem auto;
+    height: 33rem ;
+    width: 33rem;
+    outline: 1px solid black;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+/* -----------board--------------- */
+
+.white-piece{
+    border: 2px solid firebrick;
+    border-radius: 50%;
+    background-color: blanchedalmond;
+    width: 80%;
+    height: 80%;
+    margin: 10% auto;
+    cursor: pointer;
+    outline: none;
+}
+.black-piece{
+    border: 2px solid rgb(54, 53, 56);
+    border-radius: 50%;
+    background-color: black;
+    width: 80%;
+    height: 80%;
+    margin: 10% auto;
+    cursor: pointer;
+    outline: none;
+}
+.king{
+    border: 3px solid rgb(255, 217, 0);
+}
+.empty{
+    background-color: grey;
+}
+/*------------pieces-------------- */
+.cell__possible-cell{
+    border:3px solid green ;
+    cursor: pointer;
+}
+.focusInvalid{
+    border: 3px solid red;
+}
+.focusValid{
+    border: 3px solid green;
+}
+/*----------end game declarions------*/
+.win, .draw{
+    font-size: 4rem;
+    margin: 1rem auto;
+    width: 50%;
+    text-align: center;
+    color: brown;
+    padding: 1rem;
+
+}

@@ -14,7 +14,7 @@ const { addUserToLobby,
     getUser } = require('./utils/users')
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 const publicDirectoryPath = path.join(__dirname, '../public')
 const server = http.createServer(app)//express do that step automaticly but for the socketio we want to explicity get the server
 const io = socketio(server) //configure socketio to work with a server

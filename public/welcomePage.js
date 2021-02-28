@@ -1,3 +1,4 @@
+const mainPage = document.getElementById('mainPage')
 const loginForm = document.getElementById('loginform')
 const joinForm = document.getElementById('joinform')
 const loginUsername = document.getElementById('username-login')

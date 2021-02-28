@@ -1,10 +1,7 @@
-// const allUsers = new Map();
-// const availableUsers = new Map()
-
 const users = [];
 
 
-const addUserToLobby = ({ id, username }) => {
+const addUserToRoom = ({ id, username, room }) => {
     username = username.trim().toLowerCase();
 
     if (!username)
@@ -17,7 +14,7 @@ const addUserToLobby = ({ id, username }) => {
     if (existingUser)
         return { error: 'username already exist in this room' }
 
-    const newUser = { id, username }
+    const newUser = { id, username, room }
     users.push(newUser)
     return { newUser }
 }
@@ -29,7 +26,11 @@ const removeUser = (id) => {
     }
 }
 
-const getUser = (id) => {
+const getUser = (username) => {
+    const userToFind = users.find((user) => user.username === username)
+    return userToFind
+}
+const getUserById = (id) => {
     const userToFind = users.find((user) => user.id === id)
     return userToFind
 }
@@ -39,14 +40,10 @@ const getUsersInRoom = (room) => {
     return usersInroom
 }
 
-const getUsersInLobby = () => {
-    return users
-}
-
 module.exports = {
-    addUserToLobby,
+    addUserToRoom,
     removeUser,
     getUsersInRoom,
-    getUsersInLobby,
-    getUser
+    getUser,
+    getUserById
 }

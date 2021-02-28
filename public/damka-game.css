@@ -2,15 +2,21 @@
     box-sizing: border-box;
     font-family: 'Langar', cursive, sans-serif;
 }
-.centered-form {
+.boxes{
+    margin-top: 2rem;
     width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+.login-form {
+    width: 50%;
     margin-bottom: 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.centered-form__box {
+.login-form__box {
     box-shadow: 0px 0px 17px 1px #1D1F26;
     background: #F7F7FA;
     padding: 24px;
@@ -18,13 +24,13 @@
     background: #333744;
 }
 
-.centered-form__box h1{
+.login-form__box h1{
     color: black;
     margin-top:0 ;
     margin-bottom: 0.5rem;
 }
 
-.centered-form button {
+.login-form button {
     width: 100%;
     font-size: 1.5rem;
     cursor: pointer;
@@ -35,13 +41,57 @@
     border: none;
 }
 
- .centered-form button:hover{
+ .login-form button:hover{
      text-decoration: none;
      color: cornsilk;
      background-color: chocolate;
   }
 
-.centered-form input {
+.login-form input {
+    margin-top: 6px;
+    margin-bottom: 16px;
+    width: 100%;
+}
+.join-form {
+    width: 50%;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.join-form__box {
+    box-shadow: 0px 0px 17px 1px #1D1F26;
+    background: #F7F7FA;
+    padding: 24px;
+    width: 250px;
+    background: #333744;
+}
+
+.join-form__box h1{
+    color: black;
+    margin-top:0 ;
+    margin-bottom: 0.5rem;
+}
+
+.join-form button {
+    width: 100%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: chocolate;
+    padding: 1.6rem;
+    display: block;
+    border: none;
+}
+
+ .join-form button:hover{
+     text-decoration: none;
+     color: cornsilk;
+     background-color: chocolate;
+  }
+
+.join-form input {
     margin-top: 6px;
     margin-bottom: 16px;
     width: 100%;
@@ -74,6 +124,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    max-height: 19rem;
     width: 95%;
     margin: 0 auto;
     margin-top: 1.5rem;
@@ -82,6 +133,7 @@
 }
 
 .chat__messages {
+    border-bottom: 1px solid grey;
     flex-grow: 1;
     padding: 24px 24px 0 24px;
     overflow-y: auto;
@@ -153,6 +205,17 @@
     font-size: 14px;
 }
 
+.message__nameInGame {
+    font-weight: 600;
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+.message__metaInGame {
+    color: #777;
+    font-size: 13px;
+}
+
 .message p {
     margin: 0;
 }
@@ -162,8 +225,7 @@
 .compose {
     display: flex;
     flex-shrink: 0;
-    margin-top: 16px;
-    padding: 24px;
+    padding: 20px;
 }
 
 .compose form {
@@ -173,7 +235,7 @@
 }
 
 .compose input {
-    border: 1px solid #eeeeee;
+    border: 1px solid rgb(189, 185, 185);
     width: 100%;
     padding: 12px;
     margin: 0 16px 0 0;
@@ -199,9 +261,11 @@
 
 .list-title {
     font-weight: 500;
-    font-size: 18px;
+    font-size: 1.3rem;
     margin-bottom: 4px;
-    padding: 12px 24px 0 24px;
+    padding: 12px 24px 5px 24px;
+    width: 70%;
+    border-bottom: 2px solid #2c2f3a;
     color: white;
 }
 
@@ -209,6 +273,12 @@
     list-style-type: none;
     font-weight: 300;
     padding: 12px 24px 0 24px;
+}
+
+.users li{
+    display: grid;
+    grid-template-columns: 2fr 2fr 1.5fr;
+    margin-bottom: 1rem;
 }
 /* .available-icon{
     border: 1px solid green;
@@ -221,6 +291,16 @@
 
 .available-username{
     margin-left: 0;
+}
+.available-usernameTitle{
+    color: brown;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.available-user-pointsTitle{
+    color: brown;
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 .users form{
     margin-left: 2rem;
@@ -296,32 +376,31 @@ img{
  }
  /* ---------------welcome page-------------------- */
  .firstHeadline{
-    width: fit-content;
-    margin: 0.5rem auto;
+     background-color: cornsilk;
+    text-align: center;
+    margin: 0 auto;
     color: black;
  }
  .secondHeadline{
-    width: fit-content;
-    margin: 0.5rem auto;
+    text-align: center;
+    margin: 0 auto;
     color: chocolate;
     }
 .thirdHeadline{
-    width: fit-content;
-    margin: 0.5rem auto;
+    text-align: center;
+    margin: 0 auto;
     color: firebrick;
 }
 /* ---------------headline---------------- */
 .white-turn{
-    position: absolute;
-    top: 47vh;
-    left: 5rem;
+    width: 247px;
+    line-height: 11;
     color: black;
     font-size: 50px;
 }
 .black-turn{
-    position: absolute;
-    top: 47vh;
-    right: 5rem;
+    width: 247px;
+    line-height: 11;
     color: black;
     font-size: 50px;
 }
@@ -342,7 +421,8 @@ img{
     background-color: blanchedalmond;
 }
 #board{
-    margin: 1rem auto;
+    margin: 1rem;
+    margin-top: 0.5rem;
     height: 33rem ;
     width: 33rem;
     outline: 1px solid black;
@@ -393,10 +473,130 @@ img{
 /*----------end game declarions------*/
 .win, .draw{
     font-size: 4rem;
-    margin: 1rem auto;
+    margin: 45% auto;
     width: 50%;
     text-align: center;
     color: brown;
     padding: 1rem;
 
+}
+/* ========================== */
+.none{
+    display: none;
+  }
+  .block{
+    display: block;
+  }
+  
+  .modal {
+    position: fixed; 
+    z-index: 1;
+    width: 100%; 
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: auto;
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+  }
+
+  .modalCart{
+    background-color: #fefefe;
+    margin: auto;
+    margin-top: 5rem;
+    padding: 20px;
+    border: 1px solid #888;
+    width: fit-content;
+  }
+  .announ{
+    grid-area: announ;
+    height: fit-content;
+    margin-bottom: 0.5rem;
+  }
+  .continueBut{
+    grid-area: but1;
+    margin-right: 0.5rem;
+    margin-top: 0.3rem;
+    padding: 0.5rem;
+    font-size: inherit;
+  }
+  .checkAndProBut{
+    grid-area: but2;
+    padding: 0.5rem;
+    margin-top: 0.3rem;
+    font-size: inherit;
+  }
+  .modaldata{
+      flex-basis: 50%;
+      width: 100%;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+  }
+  .button{
+    margin-top: 1rem;
+    margin-left: 16%;
+    background-color: chocolate;
+    color:white;
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    border:none;
+    border-radius: 10%;
+    transition: background .3s;
+    cursor: pointer;
+}
+.button:hover{
+    background-color: brown;
+}
+.gameBody{
+    margin: 0;
+}
+.gamePage{
+    display: grid;
+    grid-template-columns: 35% 65%;
+    grid-template-rows: 80% 20%;
+    grid-template-areas: 
+    "chatInMatch game"
+    "optionsInMatch game";
+    row-gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.gameArea{
+    grid-area: game;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+.chatDuringMatch{
+    grid-area: chatInMatch;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 28rem;
+    width: 100%;
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+    border: 1px solid grey;
+}
+.optionsDuringMatch{
+    text-align: center;
+    grid-area: optionsInMatch;
+    height: 100%;
+    width: 100%;
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+}
+.optionsDuringMatch button{
+    width: 80%;
+    height: 80%;
+    color: brown;
+    background-color: black;
+    cursor: pointer;
+    font-size: 2rem;
+    margin: 0.5rem auto;
+    border: none;
 }

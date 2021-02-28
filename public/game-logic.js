@@ -10,7 +10,7 @@ let piecesCantMove = [];
 let unAvailableCells = [];
 let piecesIndexesPossibleToJump = [];
 let cellsFront = [];
-
+let numbersOfStuckedPieces;
 let thereIsPossibleJumpMove = false;
 
 const boardBack = [
@@ -434,7 +434,7 @@ function checkPieceConditions() {
 }
 function givePieceBorderAndCountStackedPieces() {
     const selectedPieceOnBoard = cellsFront[selectedPiece.indexOfBoardPiece].childNodes[0];
-    let numbersOfStuckedPieces = 1;
+    numbersOfStuckedPieces = 1;
     if (selectedPiece.seventhSpace || selectedPiece.ninthSpace || selectedPiece.fourteenthSpace || selectedPiece.eighteenthSpace ||
         selectedPiece.minusSeventhSpace || selectedPiece.minusNinthSpace || selectedPiece.minusFourteenthSpace || selectedPiece.minusEighteenthSpace ||
         selectedPiece.minustwentyEightSpace || selectedPiece.minusthirtySixSpace || selectedPiece.minusfourtyTwoSpace || selectedPiece.minusthirtySixSpace ||
@@ -726,10 +726,8 @@ function changePlayer() {
     playerFocusedOnPiece();
 }
 
-function play() {
+export default function startGame() {
     createBoard();
-    changeHeadlineColor();
+    // changeHeadlineColor();
     playerFocusedOnPiece();
 }
-
-play();

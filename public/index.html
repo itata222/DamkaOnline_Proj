@@ -20,16 +20,35 @@
              In the 1950s, Arthur Samuel created one of the first board game-playing programs of any kind. More recently, in 2007 scientists at the
             University of Alberta developed their "Chinook" program to the point where it is unbeatable.</p>
         </div>
-        <div class="centered-form">
-            <div class="centered-form__box">
-                <h1>Let's Play</h1>
-                <form action="./lobby.html">
-                    <label>Display Name</label>
-                    <input type="text" name="username" placeholder="Display name" required>
-                    <button>Join Lobby</button>
-                </form>
+        <div class="boxes">
+            <div class="join-form">
+                <div class="join-form__box">
+                    <h1>Join</h1>
+                    <form id="joinform">
+                        <label>Username</label>
+                        <input id="username-join" type="text" name="username" required>
+                        <label>Password</label>
+                        <input id="password-join" type="password" name="password" required>
+                        <input type="hidden" name="room" value="lobby">
+                        <button>Join Lobby</button>
+                    </form>
+                </div>
+            </div>
+            <div class="login-form">
+                <div class="login-form__box">
+                    <h1>Login</h1>
+                    <form id="loginform">
+                        <label>Username</label>
+                        <input id="username-login" type="text" name="username" required>
+                        <label>Password</label>
+                        <input id="password-login" type="password" name="password" required>
+                        <input type="hidden" name="room" value="lobby">
+                        <button>Join Lobby</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+    <script src="./welcomePage.js"></script>
 </body>
 </html>

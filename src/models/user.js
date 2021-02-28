@@ -13,13 +13,11 @@ const UserScheme = new mongoose.Schema(
         password: {
             type: String,
             required: true,
-            trim: true,
-            validate(value) {
-                const passRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{6,}$/;
-                if (!passRegex.test(value)) {
-                    throw new Error("Password must contain big and small characters so as numbers");
-                }
-            }
+            trim: true
+        },
+        score: {
+            type: Number,
+            default: 0
         },
         tokens: [
             {
@@ -31,7 +29,7 @@ const UserScheme = new mongoose.Schema(
         ]
     })
 
-userSchema.pre("save", async function (next) {
+UserScheme.pre("save", async function (next) {
     const user = this;
 
     if (user.isModified("password")) {
@@ -41,17 +39,18 @@ userSchema.pre("save", async function (next) {
     next();
 });
 
-userSchema.statics.findUserByUsernameAndPassword = async (username, password) => {
+UserScheme.statics.findUserByUsernameAndPassword = async (username, password) => {
     const user = await User.findOne({ username })
     if (!user)
         throw new Error({ error: 'Unable to login' })
-    const isPassMatch = await bcrypt.compare(user.password, password)
+    const isPassMatch = await bcrypt.compare(password, user.password)
     if (!isPassMatch)
         throw new Error({ error: 'Unable to login' })
+
     return user
 }
 
-userSchema.methods.generateAuthToken = async function () {
+UserScheme.methods.generateAuthToken = async function () {
     const user = this;
     const token = jwt.sign(
         {
@@ -68,7 +67,7 @@ userSchema.methods.generateAuthToken = async function () {
     return token;
 };
 
-userSchema.methods.toJSON = function () {
+UserScheme.methods.toJSON = function () {
     const user = this;
     const userObj = user.toObject();
 

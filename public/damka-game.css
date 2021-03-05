@@ -160,8 +160,7 @@
 .chat__leaderboard .myScore{
     text-align: center;
     width: 50%;
-    margin:auto;
-    margin-top: 0.7rem;
+    margin:0 auto;
     /* border-top: 1px solid black; */
     color: #2c2f3a;
     padding-right: 3rem;
@@ -176,17 +175,21 @@
     flex-wrap: nowrap;
 }
 .leaders-container ol{
+    height: 100%;
     margin-top: -0.7rem;
+    padding: 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
     justify-items: center;
 }
 .leaders-container li{
+    display: grid;
+    grid-template-columns: 10% 60% 30%;
     text-align: center;
     color: white;
     font-size: 1.2rem;
-    width: 50%;
+    width: 70%;
     margin-top: 0.5rem;
     margin-bottom: 0.1rem;
 }
@@ -302,6 +305,7 @@
     font-size: 1.2rem;
     font-weight: bold;
 }
+
 .users form{
     margin-left: 2rem;
     display: inline-block;
@@ -376,7 +380,6 @@ img{
  }
  /* ---------------welcome page-------------------- */
  .firstHeadline{
-     background-color: cornsilk;
     text-align: center;
     margin: 0 auto;
     color: black;
@@ -509,19 +512,60 @@ img{
     width: fit-content;
   }
   .announ{
-    grid-area: announ;
+    text-align: center;
     height: fit-content;
     margin-bottom: 0.5rem;
+    font-size: 1.5rem;
   }
   .continueBut{
-    grid-area: but1;
-    margin-right: 0.5rem;
-    margin-top: 0.3rem;
+    margin: 0.5rem auto;
+    margin-left: 1.1rem;
+    background-color: chocolate;
+    color:white;
+    font-size: 1rem;
     padding: 0.5rem;
-    font-size: inherit;
+    border:none;
+    border-radius: 10%;
+    transition: background .3s;
+    cursor: pointer;
   }
   .checkAndProBut{
-    grid-area: but2;
+    padding: 0.5rem;
+    margin-top: 0.3rem;
+    font-size: inherit;
+  }
+  .forfeitButtons{
+    margin: 0.5rem auto;
+    margin-left: 18%;
+    background-color: chocolate;
+    color: white;
+    font-size: 1rem;
+    padding: 0.5rem;
+    width: 5rem;
+    border: none;
+    border-radius: 10%;
+    transition: background .3s;
+    cursor: pointer;
+  }
+  .announLobby{
+    text-align: center;
+    height: fit-content;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+  .continueButLobby{
+    margin: 0.5rem auto;
+    margin-left: 1.1rem;
+    background-color: chocolate;
+    color:white;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border:none;
+    border-radius: 10%;
+    transition: background .3s;
+    cursor: pointer;
+  }
+  .checkAndProButLobby{
     padding: 0.5rem;
     margin-top: 0.3rem;
     font-size: inherit;
@@ -538,7 +582,7 @@ img{
   }
   .button{
     margin-top: 1rem;
-    margin-left: 16%;
+    margin-left: 20%;
     background-color: chocolate;
     color:white;
     font-size: 1.5rem;
@@ -592,7 +636,7 @@ img{
 }
 .optionsDuringMatch button{
     width: 80%;
-    height: 80%;
+    height: 65%;
     color: brown;
     background-color: black;
     cursor: pointer;

@@ -15,7 +15,6 @@ loginForm.addEventListener('submit', (event) => {
     const password = loginPassword.value
     const room = 'lobby'
     data = { username, password, room }
-    console.log(data)
     fetch(loginUrl, {
         method: 'POST',
         headers: {
@@ -25,8 +24,10 @@ loginForm.addEventListener('submit', (event) => {
     })
         .then(response => response.json())
         .then(data => {
-            console.log('Success:', data);
+            // console.log('Success:', data);
             if (data.status) {
+                loginUsername.value = "";
+                loginPassword.value = "";
                 enterLobbyError('Unable to login')
             }
             else
@@ -43,7 +44,6 @@ joinForm.addEventListener('submit', (event) => {
     const password = joinPassword.value
     const room = 'lobby'
     data = { username, password, room }
-    console.log(data)
     fetch(joinUrl, {
         method: 'POST',
         headers: {
@@ -75,10 +75,14 @@ const enterLobbyError = (message) => {
     errorHeader.className = "announ"
     errorHeader.innerHTML = message
     const errorButton = document.createElement('button');
-    errorButton.className = "button continueBut"
+    errorButton.className = "continueBut"
     errorButton.innerHTML = "Ok...TRY AGAIN"
     errorButton.onclick = function () {
-        invitationModal.remove();
+        errorModal.remove();
+    }
+    window.onclick = function (e) {
+        if (e.target == errorModal)
+            errorModal.remove();
     }
     errorModalContent.appendChild(errorHeader)
     errorModalContent.appendChild(errorButton)

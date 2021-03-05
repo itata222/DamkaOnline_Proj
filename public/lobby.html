@@ -19,22 +19,9 @@
         </div>
         <div class="chat__leaderboard">
             <h2 id="leadersHeadline" class="firstHeadline">Top 10 Players</h2>
-            <div class="leaders-container">
-               <ol>
-                   <!-- do what you did at chat app -->
-                   <li>Itamar</li>
-                   <li>Itamar</li>
-                   <li>Itamar</li>
-                   <li>Itamar</li>
-                   <li>Itamar</li>
-                   <li>Itamar</li>
-                   <li>Itamar</li>
-                   <li>Itamar</li>
-                   <li>Itamar</li>
-                   <li>Itamar</li>
-               </ol>
+            <div class="leaders-container" id="leaders-container">
+                  
             </div>
-            <div class="myScore">My Score: {{myScore}}</div>
         </div>
         <div class="chat__conversation">
             <div id="messages" class="chat__messages">
@@ -70,11 +57,24 @@
             {{#users}}
                 <li> 
                     <span class="available-username">{{username}}</span>
-                    <span class="available-user-points"> 128 pt</span>
+                    <span class="available-user-points"> {{score}} pt</span>
                     <button id="invitation-button">Invite to Play</button>
                 </li>
             {{/users}}
         </ul>
+    </script>
+
+    <script id="topPlayers-template" type="text/html">
+        <ol class="topPlayers">
+            {{#topPlayers}}
+                <li> 
+                    <span class="available-user-position">{{position}}. </span>
+                    <span class="available-username">{{username}}</span>
+                    <span class="available-user-points"> {{score}} pt</span>
+                </li>
+            {{/topPlayers}}
+        </ol>
+        <div class="myScore">My Score: {{myScore}} pt</div>
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>

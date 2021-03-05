@@ -1,4 +1,6 @@
 const socket = io()
+const myStorage = window.localStorage;
+myStorage.clear();
 
 const buttonSocket = document.querySelector('#increment')
 const inputText = document.getElementById('formInput');
@@ -6,28 +8,78 @@ const formSocket = document.getElementById('formSocket')
 const messagesContainer = document.getElementById('messages')
 const topPlayersHeadline = document.getElementById('leadersHeadline')
 const usersLoggedContainer = document.getElementById('sidebar')
+const topPlayersContainer = document.getElementById('leaders-container')
 const mainPage = document.getElementById('mainpage-lobby')
 const rejectButton = document.getElementsByClassName('continueBut')[0]
 const playButton = document.getElementsByClassName('checkAndProBut')[0]
 let invitationButton;
-
+let currentUserScore;
+let allPlayers = [];
 
 const messageTemplate = document.getElementById('message-template').innerHTML
 const sidebarTemplate = document.getElementById('sidebar-template').innerHTML
+const topPlayersTemplate = document.getElementById('topPlayers-template').innerHTML
 
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
+const getUserUrl = '/get-user?username=' + username
+
+const renderTop10Players = () => {
+    fetch('/get-all-users').then((res) => {
+        if (res.ok)
+            return res.json()
+        else
+            throw res
+    }).then((allUsers) => {
+        allPlayers = allUsers
+        allUsers.sort((a, b) => b.score - a.score);
+        let arrayOfTop10Players = allUsers.slice(0, 10)
+        for (let i = 0; i < allUsers.length; i++) {
+            if (i <= 9)
+                arrayOfTop10Players[i].position = i + 1
+            if (allUsers[i].username === username)
+                currentUserScore = allUsers[i].score
+        }
+        const html = Mustache.render(topPlayersTemplate, {
+            topPlayers: arrayOfTop10Players,
+            myScore: currentUserScore
+        })
+        topPlayersContainer.innerHTML = html
+    })
+}
 
 
-socket.emit('join', { username, room }, (error) => {
-    if (error) {
-        alert(error)
-        location.href = "/"
-    }
+fetch(getUserUrl).then((res) => {
+    if (res.ok)
+        return res.json();
+    else
+        throw res;
+}).then((userReturned) => {
+    socket.emit('join', { username: userReturned.username, room, previousRoom: null, score: userReturned.score }, (error, socketId) => {
+        localStorage.setItem(`${userReturned.username}-SocketId`, socketId)
+        console.log(myStorage)
+        currentUserScore = userReturned.score
+        if (error) {
+            alert(error)
+            location.href = "/"
+        }
+        renderTop10Players()
+    })
+}).catch((err) => {
+    console.log(err)
 })
 
 socket.on('usersLogged', ({ users, room }) => {
     users = users.filter((user) => user.username !== username)
-
+    for (let i = 0; i < users.length; i++) {
+        localStorage.setItem(`${users[i].username}-SocketId`, users[i].id)
+        console.log(myStorage)
+        for (let j = 0; j < allPlayers.length; j++)
+            if (users[i].username === allPlayers[j].username) {
+                console.log(users[i].score, '---', allPlayers[j].score)
+                users[i].score = allPlayers[j].score
+            }
+    }
+    renderTop10Players()
     const html = Mustache.render(sidebarTemplate, {
         users,
         room
@@ -38,24 +90,31 @@ socket.on('usersLogged', ({ users, room }) => {
 document.addEventListener('click', function (e) {
     if (e.target && e.target.id == 'invitation-button') {
         invitationButton = e.target
-        socket.emit('sendInvitation', { sender: username, reciever: e.path[1].firstElementChild.innerHTML }, () => {
+        const senderId = localStorage.getItem(`${username}-SocketId`)
+        const recieverId = localStorage.getItem(`${e.path[1].firstElementChild.innerHTML}-SocketId`)
+        socket.emit('sendInvitation', { sender: username, reciever: e.path[1].firstElementChild.innerHTML, senderId, recieverId }, () => {
             e.target.innerHTML = "Pending..."
         })
     }
 });
 
-socket.on('invitation', ({ sender, reciever }) => {
-    console.log('49: sender:', sender, '----  reciever:', reciever)
-    invitation({ sender, reciever })
+socket.on('invitation', ({ sender, reciever, senderId, recieverId }) => {
+
+    invitation({ sender, reciever, senderId, recieverId })
 })
 
-socket.on('invitationAnswerIsNo', ({ sender, reciever }) => {
-    console.log('54: sender:', sender, '----  reciever:', reciever)
+socket.on('invitationAnswerIsNo', () => {
     invitationButton.innerHTML = "Invite to play"
 })
 
-socket.on('redirectToGamePage', (gamePageUrl) => {
-    window.location.href = gamePageUrl + username;
+socket.on('redirectToGamePage', ({ url, players }) => {
+    console.log(players)
+    const me = players[0].username === username ? players[0].isWhite : players[1].isWhite
+    const myscore = players[0].username === username ? players[0].score : players[1].score
+    const theOtherPlayer = players[0].username === username ? players[1].username : players[0].username
+    setTimeout(() => {
+        location.href = url + username + "&player2=" + theOtherPlayer + "&isWhite=" + me + "&score=" + myscore;
+    }, 5000);
 })
 
 
@@ -78,28 +137,27 @@ socket.on('message', (message) => {
     autoScroll();
 })
 
-const invitation = ({ sender, reciever }) => {
-    console.log('sender:', sender, '----  reciever:', reciever)
+const invitation = ({ sender, reciever, senderId, recieverId }) => {
     const invitationModal = document.createElement('div')
     invitationModal.className = "modal block"
     const invitationModalContent = document.createElement('div')
     invitationModalContent.className = "modalCart"
     const invitationHeader = document.createElement('div')
-    invitationHeader.className = "announ"
-    invitationHeader.innerHTML = `You just invited by <b>${username}</b> to play! \n Choose your next step:`
+    invitationHeader.className = "announLobby"
+    invitationHeader.innerHTML = `You just invited by <b>${sender}</b> to play! \n Choose your next step:`
     const rejectInvitation = document.createElement('button');
-    rejectInvitation.className = "button continueBut"
+    rejectInvitation.className = "button continueButLobby"
     rejectInvitation.innerHTML = "Reject"
     rejectInvitation.onclick = function () {
-        socket.emit('invitationRejected', { sender, reciever })
+        socket.emit('invitationRejected', { sender, reciever, senderId, recieverId })
         invitationModal.remove();
     }
     const acceptInvitation = document.createElement('button');
-    acceptInvitation.className = "button checkAndProBut"
+    acceptInvitation.className = "button checkAndProButLobby"
     acceptInvitation.innerHTML = "Play !";
     acceptInvitation.addEventListener('click', (event) => {
         event.preventDefault();
-        socket.emit('invitationAccepted', { sender, reciever })
+        socket.emit('invitationAccepted', { sender, reciever, senderId, recieverId })
         invitationModal.remove();
     })
     invitationModalContent.appendChild(invitationHeader)

@@ -1,6 +1,5 @@
 const express = require('express')
 const User = require('../models/user')
-const auth = require('../middlewares/auth');
 
 const router = new express.Router();
 
@@ -8,8 +7,7 @@ router.post('/create-user', async (req, res) => {
     const user = new User(req.body)
     try {
         await user.save()
-        const token = await user.generateAuthToken()
-        res.status(201).send({ user, token })
+        res.status(201).send({ user })
     } catch (e) {
         res.status(400).send(e)
     }
@@ -18,8 +16,7 @@ router.post('/create-user', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const user = await User.findUserByUsernameAndPassword(req.body.username, req.body.password)
-        const currentToken = await user.generateAuthToken();
-        res.send({ user, currentToken })
+        res.send({ user })
     } catch (e) {
         res.status(400).send({
             status: 400,
@@ -30,8 +27,9 @@ router.post('/login', async (req, res) => {
 
 
 router.get('/get-user', async (req, res) => {
+    const username = req.query.username
     try {
-        const user = await User.findOne({ username: req.body.username })
+        const user = await User.findOne({ username })
         if (!user)
             res.status(404).send({
                 message: "user not found"
@@ -45,16 +43,39 @@ router.get('/get-user', async (req, res) => {
     }
 })
 
-router.patch('/change-user-score', async (req, res) => {
+router.get('/get-all-users', async (req, res) => {
     try {
-        const user = await User.findOne({ username: req.body.username })
-        if (!user)
+        const users = await User.find({})
+        res.send(users)
+    } catch (e) {
+        res.status(500).send({
+            status: 500,
+            message: 'something went wrong'
+        })
+    }
+})
+
+router.patch('/change-users-score', async (req, res) => {
+    try {
+        const winner = await User.findOne({ username: req.body.winner })
+        const loser = await User.findOne({ username: req.body.loser })
+        // console.log(winner, loser)
+
+        if (!winner || !loser)
             res.status(404).send({
                 message: "user not found"
             })
-        user.score = user.score
-    } catch (e) {
 
+        winner.score = winner.score + 100 + (loser.score > 0 ? (Math.floor(loser.score / 10)) : 0)
+        loser.score = loser.score - 50
+        await winner.save()
+        await loser.save()
+        res.send({ winner, loser })
+    } catch (e) {
+        res.status(500).send({
+            status: 500,
+            message: 'something went wrong'
+        })
     }
 })
 

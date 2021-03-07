@@ -1,5 +1,10 @@
 const socket = io();
 const { room, username, player2, isWhite, score } = Qs.parse(location.search, { ignoreQueryPrefix: true })
+const isWhiteBoolean = isWhite === 'true' ? true : false
+
+socket.emit('join', { username, room, previousRoom: 'lobby', score, isWhite }, () => {
+
+})
 
 const inputText = document.getElementById('formInput');
 const messagesContainer = document.getElementById('messages')
@@ -20,7 +25,6 @@ fetch(getUserUrl).then((res) => {
         throw res;
 }).then((userReturned) => {
     socket.emit('join', { username: userReturned.username, room, previousRoom: 'lobby', score: userReturned.score, isWhite }, (error) => {
-        console.log(username, 'logged to room')
         if (error) {
             alert(error)
             location.href = "/"
@@ -160,8 +164,8 @@ const autoScroll = () => {
 const board = document.getElementById('board');
 const headline = document.getElementById('headline');
 const whiteTurnText = document.querySelector(".white-turn");
-const blackTurnText = document.querySelector(".black-turn");
-const isUserTheWhites = isWhite
+const isUserTheWhites = isWhiteBoolean
+const whitePlayer = isUserTheWhites ? username : player2
 
 let whitesPieces = [];
 let blacksPieces = [];
@@ -172,7 +176,7 @@ let piecesIndexesPossibleToJump = [];
 let cellsFront = [];
 let numbersOfStuckedPieces;
 
-const boardBack = [
+let boardBack = [
     null, { isWhite: true, isKing: false }, null, { isWhite: true, isKing: false }, null, { isWhite: true, isKing: false }, null, { isWhite: true, isKing: false },
     { isWhite: true, isKing: false }, null, { isWhite: true, isKing: false }, null, { isWhite: true, isKing: false }, null, { isWhite: true, isKing: false }, null,
     null, { isWhite: true, isKing: false }, null, { isWhite: true, isKing: false }, null, { isWhite: true, isKing: false }, null, { isWhite: true, isKing: false },
@@ -192,6 +196,9 @@ let draw = false;
 let WhiteIsStuck = false;
 let BlackIsStuck = false;
 let whiteTurn = true;
+
+whiteTurnText.innerHTML = (whiteTurn && isUserTheWhites) ? 'Your Turn' : ''
+let myTurn = (isUserTheWhites && whiteTurn) || (!isUserTheWhites && !whiteTurn)
 
 let selectedPiece = {
     indexOfBoardPiece: -1,
@@ -269,36 +276,49 @@ function changeHeadlineColor() {
     }, 20000);
 }
 
-//---------------------------------------------------------//
-
-function changeControl(event) {
+const changeControl = function (event) {
     event.stopPropagation();
     event.preventDefault();
 }
 
-function playerFocusedOnPiece() {
-    if (whiteTurn) {
-        console.log('1', isUserTheWhites)
-        for (let i = 0; i < whitesPieces.length; i++)
-            whitesPieces[i].addEventListener('focus', focusOnPiece)
+//---------------------------------------------------------//
+
+createBoard();
+
+function startGame() {
+    myTurn = (isUserTheWhites && whiteTurn) || (!isUserTheWhites && !whiteTurn)
+
+    if (!myTurn) {
+        console.log('my turn: False!', myTurn)
+        document.addEventListener('click', changeControl, true)
+        document.addEventListener('focus', changeControl, true)
     }
     else {
-        console.log('2', isUserTheWhites)
-        for (let i = 0; i < blacksPieces.length; i++)
-            blacksPieces[i].addEventListener('focus', focusOnPiece)
+        console.log('my turn: True!', myTurn)
+        document.removeEventListener('click', changeControl, true)
+        document.removeEventListener('focus', changeControl, true)
     }
-}
-const focusOnPiece = (event) => {
-    focusedPieceIndex = event.target.parentElement.index;
-    definePlayerPieces();
+
+    playerClickedOnCell();
+
 }
 
+function playerClickedOnCell() {
+    for (let i = 0; i < cellsFront.length; i++)
+        if (cellsFront[i] != null)
+            cellsFront[i].addEventListener('click', clickedOnCell)
+}
+const clickedOnCell = (event) => {
+    clickedCellIndex = event.target.parentElement.index;
+    if (clickedCellIndex)
+        definePlayerPieces();
+}
 function definePlayerPieces() {
     if (whiteTurn)
         playerPieces = whitesPieces;
-    else
+    else {
         playerPieces = blacksPieces;
-
+    }
     resetSelectedPiece();
     getSelectedPiece();
 }
@@ -332,16 +352,20 @@ function resetSelectedPiece() {
     }
 }
 function getSelectedPiece() {
-    selectedPiece.indexOfBoardPiece = focusedPieceIndex;
-    selectedPiece.isWhite = boardBack[focusedPieceIndex].isWhite;
-    isPieceKing();
-}
+    selectedPiece.indexOfBoardPiece = clickedCellIndex;
+    selectedPiece.isWhite = boardBack[clickedCellIndex].isWhite;
 
+    if ((myTurn && isUserTheWhites && selectedPiece.isWhite) || (myTurn && !selectedPiece.isWhite && !isUserTheWhites))
+        isPieceKing();
+}
 function isPieceKing() {
-    if (boardBack[focusedPieceIndex].isKing)
+    if (boardBack[clickedCellIndex].isKing)
         selectedPiece.isKing = true;
     else
         selectedPiece.isKing = false;
+
+    console.log(selectedPiece.isKing, selectedPiece.isWhite)
+
     saveUnAvailableCells();
     getAvailableSpaces();
 }
@@ -367,6 +391,7 @@ function isAvailableCell(cellIndex) {
     return true;
 }
 function getAvailableSpaces() {
+
     if (whiteTurn) {
         if (isAvailableCell(selectedPiece.indexOfBoardPiece + 7) && selectedPiece.isWhite && selectedPiece.indexOfBoardPiece + 7 <= 63 && boardBack[selectedPiece.indexOfBoardPiece + 7] === null)
             selectedPiece.seventhSpace = true;
@@ -554,9 +579,12 @@ function playerMustMakeJumpMovesIfPossible() {
 }
 function addBorder(event) {
     event.target.classList.add('focusInvalid');
+    console.log(event.target.className)
 }
 function removeBorder(event) {
     event.target.classList.remove('focusInvalid');
+    console.log(event.target.className)
+
 }
 function addAndRemoveEventListenerExcept(arrayOfPossibleJumperPieces) {
     let playerIndex = 0;
@@ -564,13 +592,12 @@ function addAndRemoveEventListenerExcept(arrayOfPossibleJumperPieces) {
     for (let i = 0; i < playerPieces.length; i++, playerIndex++) {
         if (playerPieces[i].parentElement.index === first)
             continue;
-        playerPieces[playerIndex].removeEventListener('focus', focusOnPiece);
         playerPieces[playerIndex].addEventListener('focus', addBorder);
         playerPieces[playerIndex].addEventListener('blur', removeBorder);
     }
 }
-
 function checkPieceConditions() {
+
     if (selectedPiece.isKing)
         givePieceBorderAndCountStackedPieces();
     else {
@@ -600,6 +627,7 @@ function checkPieceConditions() {
 }
 function givePieceBorderAndCountStackedPieces() {
     const selectedPieceOnBoard = cellsFront[selectedPiece.indexOfBoardPiece].childNodes[0];
+    console.log(selectedPieceOnBoard)
     numbersOfStuckedPieces = 1;
     if (selectedPiece.seventhSpace || selectedPiece.ninthSpace || selectedPiece.fourteenthSpace || selectedPiece.eighteenthSpace ||
         selectedPiece.minusSeventhSpace || selectedPiece.minusNinthSpace || selectedPiece.minusFourteenthSpace || selectedPiece.minusEighteenthSpace ||
@@ -723,7 +751,6 @@ function givePossibleCellsBorder() {
     }
 
 }
-
 function makeMove() {
     const currentSelectedPiece = selectedPiecesList[selectedPiecesList.length - 1];
     boardBack[currentSelectedPiece.indexOfBoardPiece] = null;
@@ -803,7 +830,6 @@ function makeMove() {
     removeEventListener();
     updateBoardHtml();
 }
-
 function updateBoardHtml() {
     for (let i = 0; i < boardBack.length; i++) {
         let cell;
@@ -823,7 +849,6 @@ function updateBoardHtml() {
     }
     gameOver();
 }
-
 function removeEventListener() {
     const cellsWithEventListeners = document.querySelectorAll('.cell');
     for (let i = 0; i < cellsWithEventListeners.length; i++) {
@@ -836,28 +861,15 @@ function removeEventListener() {
     resetBorders();
 }
 function gameOver() {
-    let winState = document.getElementsByClassName('win')[0];
-    let drawState = document.getElementsByClassName('draw')[0];
     checkPossibilityForDraw();
     if (whitesPieces.length === 0 || WhiteIsStuck) {
-        winState.classList.remove('none');
-        winState.innerHTML = "Black WON &#128081";
-        whiteTurnText.className = "white-turn";
-        blackTurnText.className = "black-turn";
-        whiteTurnText.innerHTML = "BLACK WON ";
+        whiteTurnText.innerHTML = "BLACK WON &#128081";
     }
     else if (blacksPieces.length === 0 || BlackIsStuck) {
-        winState.classList.remove('none');
-        winState.innerHTML = "White WON &#128081";
-        whiteTurnText.className = "white-turn";
-        blackTurnText.className = "black-turn";
-        whiteTurnText.innerHTML = "WHITE WON";
+        whiteTurnText.innerHTML = "WHITE WON &#128081";
     }
     else if (draw === true) {
-        drawState.classList.remove('none');
-        drawState.innerHTML = "!!!  DRAW  !!!";
-        whiteTurnText.className = "white-turn none";
-        blackTurnText.className = "black-turn none";
+        whiteTurnText.innerHTML = "!!!  DRAW  !!!";
     }
     else {
         changePlayer();
@@ -868,37 +880,55 @@ function checkPossibilityForDraw() {
         draw = true;
 }
 function changePlayer() {
+    console.log('im done- now i should not be able to click')
+    socket.emit('move made', ({ boardBack, room }))
+}
+
+function updateBoardUi(board) {
+    boardBack = board
+    for (let i = 0; i < boardBack.length; i++) {
+        let cell;
+        if (cellsFront[i] !== null) {
+            cell = cellsFront[i]
+            if (boardBack[i] !== null && boardBack[i].isWhite && !boardBack[i].isKing)
+                cell.innerHTML = `<div class="white-piece" tabindex="${i}"></div>`;
+            else if (boardBack[i] !== null && boardBack[i].isWhite && boardBack[i].isKing)
+                cell.innerHTML = `<div class="white-piece king" tabindex="${i}"></div>`;
+            else if (boardBack[i] !== null && !boardBack[i].isWhite && !boardBack[i].isKing)
+                cell.innerHTML = `<div class="black-piece" tabindex="${i}"></div>`;
+            else if (boardBack[i] !== null && !boardBack[i].isWhite && boardBack[i].isKing)
+                cell.innerHTML = `<div class="black-piece king" tabindex="${i}"></div>`;
+            else
+                cell.innerHTML = "<div class='empty'></div>";
+        }
+    }
     if (whiteTurn) {
         whiteTurn = false;
-        whiteTurnText.classList.add('none');
-        blackTurnText.classList.remove('none');
+        whiteTurnText.innerHTML = (!whiteTurn && !isUserTheWhites) ? 'Your Turn' : ''
     }
     else {
         whiteTurn = true;
-        blackTurnText.classList.add('none');
-        whiteTurnText.classList.remove('none');
+        whiteTurnText.innerHTML = (whiteTurn && isUserTheWhites) ? 'Your Turn' : ''
     }
     selectedPiecesList = [];
     piecesCantMove = [];
     numbersOfStuckedPieces = 1;
     piecesIndexesPossibleToJump = [];
     resetSelectedPiece();
-    playerFocusedOnPiece();
+    startGame();
 }
 
-function startGame() {
-    createBoard();
-    // changeHeadlineColor();
-    playerFocusedOnPiece();
-
-}
-
-socket.emit('join', { username, room, previousRoom: 'lobby', score, isWhite }, () => {
-    console.log('user', username, isWhite)
+socket.on('update board', (boardBack) => {
+    document.removeEventListener('click', changeControl, true)
+    document.removeEventListener('focus', changeControl, true)
+    document.removeEventListener('blur', changeControl, true)
+    updateBoardUi(boardBack)
 })
 
-socket.emit('start', ({ isWhite, username, player2, room }))
+// socket.on('control change', () => {
+//     console.log('1111111111')
+//     document.removeEventListener('click', changeControl, true)
+//     document.removeEventListener('focus', changeControl, true)
+// })
 
-socket.on('startGame', ({ isWhite, username, player2, room }) => {
-    startGame()
-})
+startGame()

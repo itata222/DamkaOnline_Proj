@@ -112,9 +112,9 @@ socket.on('redirectToGamePage', ({ url, players }) => {
     const me = players[0].username === username ? players[0].isWhite : players[1].isWhite
     const myscore = players[0].username === username ? players[0].score : players[1].score
     const theOtherPlayer = players[0].username === username ? players[1].username : players[0].username
-    setTimeout(() => {
-        location.href = url + username + "&player2=" + theOtherPlayer + "&isWhite=" + me + "&score=" + myscore;
-    }, 5000);
+
+    location.href = url + username + "&player2=" + theOtherPlayer + "&isWhite=" + me + "&score=" + myscore;
+
 })
 
 

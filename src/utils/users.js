@@ -23,7 +23,7 @@ const addUserToRoom = ({ id, username, room, previousRoom, score, isWhite }) => 
     })
     if (userExist) return {}
     users.push(newUser)
-    console.log("users", users)
+    // console.log("users", users)
     return { newUser }
 }
 

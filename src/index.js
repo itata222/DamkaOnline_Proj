@@ -39,13 +39,13 @@ let gameRoom = 0;
 
 
 io.on('connection', (socket) => {
-    socket.on('join', ({ username, room, previousRoom, score }, callback) => {
-        let isWhite = true;
+    socket.on('join', ({ username, room, previousRoom, score, isWhite }, callback) => {
+        let isWhites = true;
         if (room !== 'lobby') {
             previousRoom = 'lobby'
-            isWhite = getUsersInRoom(room).length === 0 ? true : false
+            isWhites = getUsersInRoom(room).length === 0 ? true : false
         }
-        const { error, newUser } = addUserToRoom({ id: socket.id, username, room, previousRoom, score, isWhite })
+        const { error, newUser } = addUserToRoom({ id: socket.id, username, room, previousRoom, score, isWhite: isWhites })
 
         // console.log('join:', newUser, error)
 
@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
         if (newUser != undefined) {
             socket.join(newUser.room)
 
-            const messageEventMessage = (newUser.room === 'lobby') ? `Welcome ${newUser.username}` : `Good luck ${newUser.username.toUpperCase()}! Dont forget to Respect your opponent`
+            const messageEventMessage = (newUser.room === 'lobby') ? `Welcome ${newUser.username}` : `Good luck ${newUser.username.toUpperCase()}! You are the ${isWhite === 'true' ? 'White' : 'Black'} Player. \n Dont forget to Respect your opponent`
             socket.emit('message', generateMessage(messageEventMessage))
             if (newUser.room === 'lobby') socket.broadcast.to(newUser.room).emit('message', generateMessage(`${newUser.username} just joined!`))
             io.to(newUser.room).emit('usersLogged', { users: getUsersInRoom(newUser.room), room: newUser.room })
@@ -72,7 +72,6 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         const user = getUserById(socket.id)
         if (user && user.room === 'lobby') {
-            // console.log('2:', user)
 
             removeUser(socket.id)
             socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} left`))
@@ -111,8 +110,8 @@ io.on('connection', (socket) => {
 
         socket.join(gameRoom)
 
-        // addUserToRoom({ id: senderId, username: sender, room: gameRoom, previousRoom: 'lobby', score: getUser(sender).score, isWhite: true })
-        // addUserToRoom({ id: recieverId, username: reciever, room: gameRoom, previousRoom: 'lobby', score: getUser(reciever).score, isWhite: false })
+        addUserToRoom({ id: senderId, username: sender, room: gameRoom, previousRoom: 'lobby', score: getUser(sender).score, isWhite: true })
+        addUserToRoom({ id: recieverId, username: reciever, room: gameRoom, previousRoom: 'lobby', score: getUser(reciever).score, isWhite: false })
 
         socket.broadcast.to('lobby').emit('message', generateMessage(`${sender} and ${reciever} began a match in Room ${gameRoom}`))
         io.to('lobby').emit('usersLogged', { users: getUsersInRoom('lobby'), room: 'lobby' })
@@ -128,10 +127,16 @@ io.on('connection', (socket) => {
         callback();
     })
 
-    socket.on('start', ({ isWhite, username, player2, room }) => {
-        // console.log('124', getUsersInRoom(room))
-        io.to(room).emit('startGame', { isWhite, username, player2, room })
+    socket.on('move made', ({ boardBack, room }) => {
+        // io.to(room).emit('control change')
+        io.to(room).emit('update board', (boardBack))
     })
+
+    // socket.on('change control', ({ room }, callback) => {
+    //     console.log('3', getUsersInRoom(room))
+    //     // socket.broadcast.to(room).emit('control change')
+    //     callback()
+    // })
 
 })
 

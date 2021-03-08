@@ -1,4 +1,3 @@
-
 const express = require('express')
 const cors = require('cors')
 
@@ -45,14 +44,18 @@ io.on('connection', (socket) => {
             previousRoom = 'lobby'
             isWhites = getUsersInRoom(room).length === 0 ? true : false
         }
+        console.log('connect1', getUsersInRoom('lobby'))
+        console.log('connect2', getUsersInRoom(room))
+
         const { error, newUser } = addUserToRoom({ id: socket.id, username, room, previousRoom, score, isWhite: isWhites })
 
-        // console.log('join:', newUser, error)
 
         if (error)
             return callback(error)
 
         if (newUser != undefined) {
+            console.log('join:', newUser, error)
+
             socket.join(newUser.room)
 
             const messageEventMessage = (newUser.room === 'lobby') ? `Welcome ${newUser.username}` : `Good luck ${newUser.username.toUpperCase()}! You are the ${isWhite === 'true' ? 'White' : 'Black'} Player. \n Dont forget to Respect your opponent`
@@ -70,6 +73,8 @@ io.on('connection', (socket) => {
     })
 
     socket.on('disconnect', () => {
+        console.log('disconnect1', getUsersInRoom('lobby'))
+        console.log('disconnect2', gameRoom, getUsersInRoom(gameRoom - 1 + ''))
         const user = getUserById(socket.id)
         if (user && user.room === 'lobby') {
 
@@ -100,9 +105,6 @@ io.on('connection', (socket) => {
     socket.on('invitationRejected', ({ sender, reciever, senderId, recieverId }) => {
         socket.leave(gameRoom);
         getUser(sender).room = 'lobby'
-
-        console.log('98:', getUsersInRoom(gameRoom))
-
         socket.to(senderId).emit('invitationAnswerIsNo', { sender, reciever })
     })
 
@@ -128,15 +130,15 @@ io.on('connection', (socket) => {
     })
 
     socket.on('move made', ({ boardBack, room }) => {
-        // io.to(room).emit('control change')
         io.to(room).emit('update board', (boardBack))
+
     })
 
-    // socket.on('change control', ({ room }, callback) => {
-    //     console.log('3', getUsersInRoom(room))
-    //     // socket.broadcast.to(room).emit('control change')
-    //     callback()
-    // })
+    socket.on('checkersSocket', ({ room, winner, loser }) => {
+        console.log('ended:', winner, loser)
+
+        io.to(room).emit('redirectToLobbyPage', { url: `/lobby.html?room=lobby&username=`, winner })
+    })
 
 })
 

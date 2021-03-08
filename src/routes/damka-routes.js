@@ -30,6 +30,8 @@ router.get('/get-user', async (req, res) => {
     const username = req.query.username
     try {
         const user = await User.findOne({ username })
+        console.log(' im here', user)
+
         if (!user)
             res.status(404).send({
                 message: "user not found"
@@ -57,25 +59,24 @@ router.get('/get-all-users', async (req, res) => {
 
 router.patch('/change-users-score', async (req, res) => {
     try {
+        console.log('why')
         const winner = await User.findOne({ username: req.body.winner })
         const loser = await User.findOne({ username: req.body.loser })
-        // console.log(winner, loser)
+        console.log('its')
 
         if (!winner || !loser)
             res.status(404).send({
                 message: "user not found"
             })
+        console.log('not')
 
         winner.score = winner.score + 100 + (loser.score > 0 ? (Math.floor(loser.score / 10)) : 0)
         loser.score = loser.score - 50
+        console.log('working')
         await winner.save()
         await loser.save()
-        res.send({ winner, loser })
     } catch (e) {
-        res.status(500).send({
-            status: 500,
-            message: 'something went wrong'
-        })
+        console.log(e)
     }
 })
 

@@ -21,30 +21,34 @@ const sidebarTemplate = document.getElementById('sidebar-template').innerHTML
 const topPlayersTemplate = document.getElementById('topPlayers-template').innerHTML
 
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
+console.log(username, room)
 const getUserUrl = '/get-user?username=' + username
 
 const renderTop10Players = () => {
-    fetch('/get-all-users').then((res) => {
-        if (res.ok)
-            return res.json()
-        else
-            throw res
-    }).then((allUsers) => {
-        allPlayers = allUsers
-        allUsers.sort((a, b) => b.score - a.score);
-        let arrayOfTop10Players = allUsers.slice(0, 10)
-        for (let i = 0; i < allUsers.length; i++) {
-            if (i <= 9)
-                arrayOfTop10Players[i].position = i + 1
-            if (allUsers[i].username === username)
-                currentUserScore = allUsers[i].score
-        }
-        const html = Mustache.render(topPlayersTemplate, {
-            topPlayers: arrayOfTop10Players,
-            myScore: currentUserScore
+    fetch('/get-all-users')
+        .then((res) => {
+            console.log(res)
+            if (res.ok)
+                return res.json()
+            else
+                throw res
+        }).then((allUsers) => {
+            console.log('everything fine here- 1')
+            allPlayers = allUsers
+            allUsers.sort((a, b) => b.score - a.score);
+            let arrayOfTop10Players = allUsers.slice(0, 10)
+            for (let i = 0; i < allUsers.length; i++) {
+                if (i <= 9)
+                    arrayOfTop10Players[i].position = i + 1
+                if (allUsers[i].username === username)
+                    currentUserScore = allUsers[i].score
+            }
+            const html = Mustache.render(topPlayersTemplate, {
+                topPlayers: arrayOfTop10Players,
+                myScore: currentUserScore
+            })
+            topPlayersContainer.innerHTML = html
         })
-        topPlayersContainer.innerHTML = html
-    })
 }
 
 
@@ -73,11 +77,6 @@ socket.on('usersLogged', ({ users, room }) => {
     for (let i = 0; i < users.length; i++) {
         localStorage.setItem(`${users[i].username}-SocketId`, users[i].id)
         console.log(myStorage)
-        for (let j = 0; j < allPlayers.length; j++)
-            if (users[i].username === allPlayers[j].username) {
-                console.log(users[i].score, '---', allPlayers[j].score)
-                users[i].score = allPlayers[j].score
-            }
     }
     renderTop10Players()
     const html = Mustache.render(sidebarTemplate, {

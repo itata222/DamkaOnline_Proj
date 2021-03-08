@@ -5,12 +5,13 @@ const isWhiteBoolean = isWhite === 'true' ? true : false
 socket.emit('join', { username, room, previousRoom: 'lobby', score, isWhite }, () => {
 
 })
-
+console.log(username)
 const inputText = document.getElementById('formInput');
 const messagesContainer = document.getElementById('messages')
 const formSocket = document.getElementById('formSocket')
 const forfeitButton = document.getElementById('forfeitButton')
 const mainPage = document.getElementById('gamePageContainer')
+const gameArea = document.getElementById('gameArea')
 
 const messageTemplate = document.getElementById('message-template').innerHTML
 
@@ -52,11 +53,6 @@ socket.on('message', (message) => {
     messagesContainer.insertAdjacentHTML('beforeend', html)
     autoScroll();
 })
-
-// socket.on('approveForfeit', ({ user }) => {
-//     console.log(user)
-//     enterLobbyError('Are you sure you want to FORFEIT?')
-// })
 
 forfeitButton.addEventListener('click', (event) => {
     event.preventDefault();
@@ -196,8 +192,9 @@ let draw = false;
 let WhiteIsStuck = false;
 let BlackIsStuck = false;
 let whiteTurn = true;
+let winner, loser;
 
-whiteTurnText.innerHTML = (whiteTurn && isUserTheWhites) ? 'Your Turn' : ''
+whiteTurnText.innerHTML = (whiteTurn && isUserTheWhites) ? 'Your Turn' : 'Opponent Turn'
 let myTurn = (isUserTheWhites && whiteTurn) || (!isUserTheWhites && !whiteTurn)
 
 let selectedPiece = {
@@ -290,13 +287,11 @@ function startGame() {
 
     if (!myTurn) {
         console.log('my turn: False!', myTurn)
-        document.addEventListener('click', changeControl, true)
-        document.addEventListener('focus', changeControl, true)
+        gameArea.addEventListener('click', changeControl, true)
     }
     else {
         console.log('my turn: True!', myTurn)
-        document.removeEventListener('click', changeControl, true)
-        document.removeEventListener('focus', changeControl, true)
+        gameArea.removeEventListener('click', changeControl, true)
     }
 
     playerClickedOnCell();
@@ -861,26 +856,35 @@ function removeEventListener() {
     resetBorders();
 }
 function gameOver() {
+    document.removeEventListener('click', changeControl, true)
+
     checkPossibilityForDraw();
-    if (whitesPieces.length === 0 || WhiteIsStuck) {
-        whiteTurnText.innerHTML = "BLACK WON &#128081";
+
+    moveMade();
+
+    if (whitesPieces.length === 11 || WhiteIsStuck) {
+        winner = isUserTheWhites ? player2 : username
+        loser = isUserTheWhites ? username : player2
+        updateScore({ winner, loser })
+        socket.emit('checkersSocket', { room, winner, loser })
     }
-    else if (blacksPieces.length === 0 || BlackIsStuck) {
-        whiteTurnText.innerHTML = "WHITE WON &#128081";
+    else if (blacksPieces.length === 11 || BlackIsStuck) {
+        winner = isUserTheWhites ? username : player2
+        loser = isUserTheWhites ? player2 : username
+        updateScore({ winner, loser })
+        socket.emit('checkersSocket', { room, winner, loser })
+
     }
     else if (draw === true) {
         whiteTurnText.innerHTML = "!!!  DRAW  !!!";
-    }
-    else {
-        changePlayer();
+        socket.emit('checkersSocket', { room, winner, loser })
     }
 }
 function checkPossibilityForDraw() {
     if ((blacksPieces.length <= 2 && whitesPieces.length < 2) || (whitesPieces.length <= 2 && blacksPieces.length < 2))
         draw = true;
 }
-function changePlayer() {
-    console.log('im done- now i should not be able to click')
+function moveMade() {
     socket.emit('move made', ({ boardBack, room }))
 }
 
@@ -902,13 +906,16 @@ function updateBoardUi(board) {
                 cell.innerHTML = "<div class='empty'></div>";
         }
     }
+}
+function changeTurn() {
+
     if (whiteTurn) {
         whiteTurn = false;
-        whiteTurnText.innerHTML = (!whiteTurn && !isUserTheWhites) ? 'Your Turn' : ''
+        whiteTurnText.innerHTML = (!whiteTurn && !isUserTheWhites && !whiteTurnText.innerHTML.includes('!')) ? 'Your Turn' : 'Opponent Turn'
     }
     else {
         whiteTurn = true;
-        whiteTurnText.innerHTML = (whiteTurn && isUserTheWhites) ? 'Your Turn' : ''
+        whiteTurnText.innerHTML = (whiteTurn && isUserTheWhites && !whiteTurnText.innerHTML.includes('!')) ? 'Your Turn' : 'Opponent Turn'
     }
     selectedPiecesList = [];
     piecesCantMove = [];
@@ -918,17 +925,37 @@ function updateBoardUi(board) {
     startGame();
 }
 
+const updateScore = (data) => {
+    fetch(changeUsersScores, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    }).then((res) => {
+        if (res.ok)
+            return res.json();
+        else
+            throw new Error(res)
+    }).then((resJson) => {
+        console.log('succeedddddd')
+    }).catch((err) => {
+        console.log(err)
+    })
+}
+
 socket.on('update board', (boardBack) => {
-    document.removeEventListener('click', changeControl, true)
-    document.removeEventListener('focus', changeControl, true)
-    document.removeEventListener('blur', changeControl, true)
     updateBoardUi(boardBack)
+    changeTurn()
 })
 
-// socket.on('control change', () => {
-//     console.log('1111111111')
-//     document.removeEventListener('click', changeControl, true)
-//     document.removeEventListener('focus', changeControl, true)
-// })
+
+socket.on('redirectToLobbyPage', ({ url, winner }) => {
+    whiteTurnText.innerHTML = `${winner.toUpperCase()} WON ! &#128081`;
+    setTimeout(() => {
+        console.log(winner, username)
+        location.href = url + username
+    }, 5000);
+})
 
 startGame()

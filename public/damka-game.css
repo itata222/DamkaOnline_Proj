@@ -396,17 +396,14 @@ img{
 }
 /* ---------------headline---------------- */
 .white-turn{
-    width: 247px;
-    line-height: 11;
+    text-align: center;
+    width: 260px;
+    margin-top: 75%;
+    margin-right: 1.2rem;
     color: black;
-    font-size: 50px;
+    font-size: 55px;
 }
-.black-turn{
-    width: 247px;
-    line-height: 11;
-    color: black;
-    font-size: 50px;
-}
+
 .none{
     display: none;
 }

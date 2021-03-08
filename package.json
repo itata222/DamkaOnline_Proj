@@ -7,9 +7,12 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "jest",
+    "test": ".\\node_modules\\.bin\\env-cmd -f .\\config\\test.env jest --watch",
     "dev": ".\\node_modules\\.bin\\env-cmd -f .\\config\\dev.env nodemon .\\src\\index.js",
     "start": "node src/index.js"
+  },
+  "jest":{
+    "testEnvironment":"node"
   },
   "engines": {
     "node": "15.3.0",

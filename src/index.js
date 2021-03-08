@@ -1,14 +1,7 @@
-const express = require('express')
-const cors = require('cors')
+const app = require('./app')
 
 const http = require('http')
-const path = require('path')
-
-const app = express();
 const port = process.env.PORT;
-
-require('./db/mongoose')
-const damkaRouter = require('./routes/damka-routes')
 
 const server = http.createServer(app)
 
@@ -19,20 +12,15 @@ const io = require("socket.io")(server, {
     }
 });
 
-const publicDirectoryPath = path.join(__dirname, '../public')
 const gamePageUrl = '/damka-game.html'
 
-app.use(express.static(publicDirectoryPath))
-app.use(cors());
-app.use(express.json())
-app.use(damkaRouter)
 
 const { generateMessage } = require('./utils/messages')
 const { addUserToRoom,
     removeUser,
     getUsersInRoom,
     getUser,
-    getUserById, removeUserFromRoom } = require('./utils/users');
+    getUserById } = require('./utils/users');
 
 let gameRoom = 0;
 

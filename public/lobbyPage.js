@@ -1,7 +1,8 @@
 const socket = io()
 const myStorage = window.localStorage;
-myStorage.clear();
-
+// myStorage.clear();
+const token = sessionStorage.getItem('token')
+console.log(token)
 const buttonSocket = document.querySelector('#increment')
 const inputText = document.getElementById('formInput');
 const formSocket = document.getElementById('formSocket')
@@ -21,11 +22,20 @@ const sidebarTemplate = document.getElementById('sidebar-template').innerHTML
 const topPlayersTemplate = document.getElementById('topPlayers-template').innerHTML
 
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
-console.log(username, room)
 const getUserUrl = '/get-user?username=' + username
 
+const myLobbyUrl = location.href
+
 const renderTop10Players = () => {
-    fetch('/get-all-users')
+    const data = {}
+    fetch('/lobby', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data),
+    })
         .then((res) => {
             console.log(res)
             if (res.ok)
@@ -33,7 +43,6 @@ const renderTop10Players = () => {
             else
                 throw res
         }).then((allUsers) => {
-            console.log('everything fine here- 1')
             allPlayers = allUsers
             allUsers.sort((a, b) => b.score - a.score);
             let arrayOfTop10Players = allUsers.slice(0, 10)
@@ -48,29 +57,63 @@ const renderTop10Players = () => {
                 myScore: currentUserScore
             })
             topPlayersContainer.innerHTML = html
+
+        }).catch((e) => {
+            location.href = '/'
         })
 }
 
 
-fetch(getUserUrl).then((res) => {
-    if (res.ok)
-        return res.json();
-    else
-        throw res;
-}).then((userReturned) => {
-    socket.emit('join', { username: userReturned.username, room, previousRoom: null, score: userReturned.score }, (error, socketId) => {
-        localStorage.setItem(`${userReturned.username}-SocketId`, socketId)
-        console.log(myStorage)
-        currentUserScore = userReturned.score
-        if (error) {
-            alert(error)
-            location.href = "/"
-        }
-        renderTop10Players()
+const getUser = () => {
+    if (location.href !== myLobbyUrl && !location.href.includes('damka-game'))
+        logoutFunc()
+    fetch(getUserUrl).then((res) => {
+        if (res.ok)
+            return res.json();
+        else
+            throw res;
+    }).then((userReturned) => {
+        socket.emit('join', { username: userReturned.username, room, previousRoom: null, score: userReturned.score }, (error, socketId) => {
+            localStorage.setItem(`${userReturned.username}-SocketId`, socketId)
+            console.log(myStorage)
+            currentUserScore = userReturned.score
+            if (error) {
+                alert(error)
+                location.href = "/"
+            }
+            renderTop10Players()
+        })
+    }).catch((err) => {
+        location.href = '/'
     })
-}).catch((err) => {
-    console.log(err)
-})
+}
+
+const logoutFunc = () => {
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+    })
+        .then((response) => {
+            console.log(response)
+            if (response.ok)
+                return response.json();
+            else
+                throw new Error(response)
+        })
+        .then(data => {
+            console.log('Success:', data);
+            sessionStorage.clear();
+            location.href = '/'
+        })
+        .catch((error) => {
+            console.log(error)
+        });
+}
+
+getUser()
 
 socket.on('usersLogged', ({ users, room }) => {
     users = users.filter((user) => user.username !== username)
@@ -96,6 +139,10 @@ document.addEventListener('click', function (e) {
         })
     }
 });
+
+socket.on('userLoggedOut', ({ user }) => {
+    alert(user, 'logged out !!')
+})
 
 socket.on('invitation', ({ sender, reciever, senderId, recieverId }) => {
 
@@ -167,15 +214,15 @@ const invitation = ({ sender, reciever, senderId, recieverId }) => {
 }
 
 
-// function changeHeadlineColor() {
-//     setInterval(() => {
-//         topPlayersHeadline.className = 'firstHeadline';
-//     }, 1000);
-//     setInterval(() => {
-//         topPlayersHeadline.className = 'thirdHeadline';
-//     }, 2000);
-// }
-// changeHeadlineColor();
+function changeHeadlineColor() {
+    setInterval(() => {
+        topPlayersHeadline.className = 'firstHeadline';
+    }, 1000);
+    setInterval(() => {
+        topPlayersHeadline.className = 'thirdHeadline';
+    }, 2000);
+}
+changeHeadlineColor();
 
 const autoScroll = () => {
     // New message element

@@ -6,6 +6,8 @@ const loginPassword = document.getElementById('password-login')
 const joinUsername = document.getElementById('username-join')
 const joinPassword = document.getElementById('password-join')
 
+const mySessionStorage = window.sessionStorage;
+
 const loginUrl = `/login`
 const joinUrl = `/create-user`
 
@@ -18,7 +20,7 @@ loginForm.addEventListener('submit', (event) => {
     fetch(loginUrl, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
     })
@@ -30,8 +32,11 @@ loginForm.addEventListener('submit', (event) => {
                 loginPassword.value = "";
                 enterLobbyError('Unable to login')
             }
-            else
+            else {
+                console.log(data)
+                sessionStorage.setItem('token', data.currentToken)
                 location.href = `/lobby.html?username=${username}&room=lobby`
+            }
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -58,8 +63,11 @@ joinForm.addEventListener('submit', (event) => {
                 joinUsername.value = "";
                 enterLobbyError('Username already exist')
             }
-            else
+            else {
+                console.log(data)
+                localStorage.setItem('token', data.currentToken)
                 location.href = `/lobby.html?username=${username}&room=lobby`
+            }
         })
         .catch((error) => {
             console.error('Error:', error);

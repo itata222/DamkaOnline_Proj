@@ -11,8 +11,8 @@
     "dev": ".\\node_modules\\.bin\\env-cmd -f .\\config\\dev.env nodemon .\\src\\index.js",
     "start": "node src/index.js"
   },
-  "jest":{
-    "testEnvironment":"node"
+  "jest": {
+    "testEnvironment": "node"
   },
   "engines": {
     "node": "15.3.0",

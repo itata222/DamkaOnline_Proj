@@ -1,11 +1,59 @@
 const socket = io();
+const token = sessionStorage.getItem('token')
 const { room, username, player2, isWhite, score } = Qs.parse(location.search, { ignoreQueryPrefix: true })
 const isWhiteBoolean = isWhite === 'true' ? true : false
 
-socket.emit('join', { username, room, previousRoom: 'lobby', score, isWhite }, () => {
 
+const logoutFunc = () => {
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+    })
+        .then((response) => {
+            console.log(response)
+            if (response.ok)
+                return response.json();
+            else
+                throw new Error(response)
+        })
+        .then(data => {
+            console.log('Success:', data);
+            sessionStorage.clear();
+            location.href = '/'
+        })
+        .catch((error) => {
+            console.log(error)
+        });
+}
+socket.emit('join', { username, room, previousRoom: 'lobby', score, isWhite }, () => {
+    const data = {}
+    fetch('/game', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data),
+    })
+        .then((res) => {
+            console.log(res)
+            if (res.ok)
+                return res.json()
+            else
+                throw res
+        }).then(() => {
+            if (!location.href.includes('lobby') && !location.href.includes('damka-game')) {
+                console.log(location.href)
+                logoutFunc()
+            }
+        }).catch((e) => {
+            console.log(e)
+            location.href = '/'
+        })
 })
-console.log(username)
 const inputText = document.getElementById('formInput');
 const messagesContainer = document.getElementById('messages')
 const formSocket = document.getElementById('formSocket')
@@ -99,7 +147,6 @@ socket.on('forfeit', ({ loser, winner }) => {
 
 
 const enterLobbyError = (message) => {
-    // console.log(room)
     const errorModal = document.createElement('div')
     errorModal.className = "modal block"
     const errorModalContent = document.createElement('div')
@@ -131,8 +178,8 @@ const enterLobbyError = (message) => {
     errorModalContent.appendChild(NOButton)
     errorModal.appendChild(errorModalContent)
     mainPage.appendChild(errorModal)
-}
 
+}
 
 const autoScroll = () => {
     // New message element
@@ -193,6 +240,7 @@ let WhiteIsStuck = false;
 let BlackIsStuck = false;
 let whiteTurn = true;
 let winner, loser;
+let firstClickDone = false;
 
 whiteTurnText.innerHTML = (whiteTurn && isUserTheWhites) ? 'Your Turn' : 'Opponent Turn'
 let myTurn = (isUserTheWhites && whiteTurn) || (!isUserTheWhites && !whiteTurn)
@@ -305,8 +353,10 @@ function playerClickedOnCell() {
 }
 const clickedOnCell = (event) => {
     clickedCellIndex = event.target.parentElement.index;
-    if (clickedCellIndex)
+    if (clickedCellIndex) {
+        firstClickDone = true;
         definePlayerPieces();
+    }
 }
 function definePlayerPieces() {
     if (whiteTurn)
@@ -622,7 +672,6 @@ function checkPieceConditions() {
 }
 function givePieceBorderAndCountStackedPieces() {
     const selectedPieceOnBoard = cellsFront[selectedPiece.indexOfBoardPiece].childNodes[0];
-    console.log(selectedPieceOnBoard)
     numbersOfStuckedPieces = 1;
     if (selectedPiece.seventhSpace || selectedPiece.ninthSpace || selectedPiece.fourteenthSpace || selectedPiece.eighteenthSpace ||
         selectedPiece.minusSeventhSpace || selectedPiece.minusNinthSpace || selectedPiece.minusFourteenthSpace || selectedPiece.minusEighteenthSpace ||
@@ -659,6 +708,7 @@ function givePieceBorderAndCountStackedPieces() {
     givePossibleCellsBorder();
 }
 function resetBorders() {
+    firstClickDone = false;
     for (let i = 0; i < cellsFront.length; i++) {
         if (cellsFront[i] == null) continue;
         if (cellsFront[i].className.includes('cell__possible-cell'))
@@ -671,10 +721,12 @@ function resetBorders() {
 }
 function givePossibleCellsBorder() {
     selectedPiecesList.push(selectedPiece);
-
+    event.preventDefault()
+    console.log(event.target)
     if (selectedPiece.seventhSpace) {
         cellsFront[selectedPiece.indexOfBoardPiece + 7].classList.add('cell__possible-cell');
         cellsFront[selectedPiece.indexOfBoardPiece + 7].addEventListener("click", makeMove);
+        // if (event.target.parentElement.index === selectedPiece.indexOfBoardPiece + 7) makeMove(event.target.parentElement.index + 7)
     }
     if (selectedPiece.ninthSpace) {
         cellsFront[selectedPiece.indexOfBoardPiece + 9].classList.add('cell__possible-cell');
@@ -746,11 +798,12 @@ function givePossibleCellsBorder() {
     }
 
 }
-function makeMove() {
+function makeMove(cellTo) {
     const currentSelectedPiece = selectedPiecesList[selectedPiecesList.length - 1];
     boardBack[currentSelectedPiece.indexOfBoardPiece] = null;
     let parsedIndexOfCellTo = this.index;
-    directionOfJumpMoves = currentSelectedPiece.indexOfBoardPiece - parsedIndexOfCellTo;
+    directionOfJumpMoves = currentSelectedPiece.indexOfBoardPiece - cellTo.target.index;
+    console.log(directionOfJumpMoves, cellTo.target.index)
 
     if (directionOfJumpMoves > 9 || directionOfJumpMoves < -9) {//means its a jump move
         if (directionOfJumpMoves === 14) {
@@ -862,13 +915,13 @@ function gameOver() {
 
     moveMade();
 
-    if (whitesPieces.length === 11 || WhiteIsStuck) {
+    if (whitesPieces.length === 0 || WhiteIsStuck) {
         winner = isUserTheWhites ? player2 : username
         loser = isUserTheWhites ? username : player2
         updateScore({ winner, loser })
         socket.emit('checkersSocket', { room, winner, loser })
     }
-    else if (blacksPieces.length === 11 || BlackIsStuck) {
+    else if (blacksPieces.length === 0 || BlackIsStuck) {
         winner = isUserTheWhites ? username : player2
         loser = isUserTheWhites ? player2 : username
         updateScore({ winner, loser })

@@ -1,51 +1,12 @@
 const express = require('express')
 const User = require('../models/user')
+const auth = require('../middlewares/auth');
+const app = require('../app');
 
 const router = new express.Router();
 
-router.post('/create-user', async (req, res) => {
-    const user = new User(req.body)
-    try {
-        await user.save()
-        res.status(201).send({ user })
-    } catch (e) {
-        res.status(400).send(e)
-    }
-})
 
-router.post('/login', async (req, res) => {
-    try {
-        const user = await User.findUserByUsernameAndPassword(req.body.username, req.body.password)
-        res.send({ user })
-    } catch (e) {
-        res.status(400).send({
-            status: 400,
-            message: e.message
-        })
-    }
-})
-
-
-router.get('/get-user', async (req, res) => {
-    const username = req.query.username
-    try {
-        const user = await User.findOne({ username })
-        console.log(' im here', user)
-
-        if (!user)
-            res.status(404).send({
-                message: "user not found"
-            })
-        res.send(user)
-    } catch (e) {
-        res.status(500).send({
-            status: 500,
-            message: 'something went wrong'
-        })
-    }
-})
-
-router.get('/get-all-users', async (req, res) => {
+router.post('/lobby', auth, async (req, res) => {
     try {
         const users = await User.find({})
         res.send(users)
@@ -57,6 +18,57 @@ router.get('/get-all-users', async (req, res) => {
     }
 })
 
+router.post('/game', auth, async (req, res) => {
+    try {
+        res.send({
+            message: 'Success'
+        })
+    } catch (e) {
+        res.status(500).send({
+            status: 500,
+            message: 'something went wrong'
+        })
+    }
+})
+
+router.post('/create-user', async (req, res) => {
+    try {
+        const user = new User(req.body)
+        const currentToken = await user.generateAuthToken();
+        res.status(201).send({ user, currentToken })
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
+router.post('/login', async (req, res) => {
+    try {
+        const user = await User.findUserByUsernameAndPassword(req.body.username, req.body.password)
+        const currentToken = await user.generateAuthToken();
+        console.log(currentToken)
+        res.send({ user, currentToken })
+    } catch (e) {
+        res.status(400).send({
+            status: 400,
+            message: e.message
+        })
+    }
+})
+
+router.get('/get-user', async (req, res) => {
+    try {
+        const username = req.query.username
+        const user = await User.findOne({ username })
+        if (!user)
+            res.status(404).send({
+                message: "user not found"
+            })
+        res.send(user)
+    } catch (e) {
+        console.log(e)
+    }
+})
+
 router.patch('/change-users-score', async (req, res) => {
     try {
         console.log('why')
@@ -65,7 +77,7 @@ router.patch('/change-users-score', async (req, res) => {
         console.log('its')
 
         if (!winner || !loser)
-            res.status(404).send({
+            return res.status(404).send({
                 message: "user not found"
             })
         console.log('not')
@@ -77,6 +89,33 @@ router.patch('/change-users-score', async (req, res) => {
         await loser.save()
     } catch (e) {
         console.log(e)
+    }
+})
+
+router.get('*', async (req, res) => {
+    try {
+        res.status(404).send({
+            message: 'Go to /'
+        })
+    } catch (e) {
+        res.status(400).send({
+            status: 400,
+            message: e.message
+        })
+    }
+})
+
+router.post('/logout', auth, async (req, res) => {
+    try {
+        console.log(req.user)
+        req.user.token = null
+        await req.user.save()
+        res.send(req.user)
+    } catch (err) {
+        res.status(500).send({
+            status: 500,
+            message: 'something went wrong'
+        })
     }
 })
 

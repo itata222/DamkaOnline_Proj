@@ -37,7 +37,6 @@ const renderTop10Players = () => {
         body: JSON.stringify(data),
     })
         .then((res) => {
-            console.log(res)
             if (res.ok)
                 return res.json()
             else
@@ -59,6 +58,7 @@ const renderTop10Players = () => {
             topPlayersContainer.innerHTML = html
 
         }).catch((e) => {
+            console.log(e)
             location.href = '/'
         })
 }
@@ -75,7 +75,6 @@ const getUser = () => {
     }).then((userReturned) => {
         socket.emit('join', { username: userReturned.username, room, previousRoom: null, score: userReturned.score }, (error, socketId) => {
             localStorage.setItem(`${userReturned.username}-SocketId`, socketId)
-            console.log(myStorage)
             currentUserScore = userReturned.score
             if (error) {
                 alert(error)
@@ -84,6 +83,7 @@ const getUser = () => {
             renderTop10Players()
         })
     }).catch((err) => {
+        console.log(err)
         location.href = '/'
     })
 }

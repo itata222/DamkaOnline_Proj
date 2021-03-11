@@ -58,8 +58,8 @@ const renderTop10Players = () => {
             topPlayersContainer.innerHTML = html
 
         }).catch((e) => {
-            console.log(e)
-            // location.href = '/'
+            alert(e)
+            location.href = '/'
         })
 }
 
@@ -83,8 +83,8 @@ const getUser = () => {
             renderTop10Players()
         })
     }).catch((err) => {
-        console.log(err)
-        // location.href = '/'
+        alert(err)
+        location.href = '/'
     })
 }
 

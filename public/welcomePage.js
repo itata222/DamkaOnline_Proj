@@ -65,7 +65,7 @@ joinForm.addEventListener('submit', (event) => {
             }
             else {
                 console.log(data)
-                localStorage.setItem('token', data.currentToken)
+                sessionStorage.setItem('token', data.currentToken)
                 location.href = `/lobby.html?username=${username}&room=lobby`
             }
         })

@@ -1,8 +1,13 @@
 const socket = io();
 const token = sessionStorage.getItem('token')
+const myUserName = sessionStorage.getItem('myUserName')
+
 const { room, username, player2, isWhite, score } = Qs.parse(location.search, { ignoreQueryPrefix: true })
 const isWhiteBoolean = isWhite === 'true' ? true : false
 
+
+if (username !== myUserName)
+    location.href = '/'
 
 const logoutFunc = () => {
     fetch('/logout', {
@@ -131,6 +136,7 @@ socket.on('forfeit', ({ loser, winner }) => {
         },
         body: JSON.stringify(data),
     }).then((res) => {
+        console.log(res)
         if (res.ok)
             return res.json();
         else
@@ -138,10 +144,12 @@ socket.on('forfeit', ({ loser, winner }) => {
     }).then((resJson) => {
         console.log(resJson)
         setTimeout(() => {
-            location.href = `/lobby.html?username=${winner}&room=lobby`
+            location.href = `/lobby.html?username=${username}&room=lobby`
         }, 3000);
     }).catch((err) => {
-        console.log(err)
+        setTimeout(() => {
+            location.href = `/lobby.html?username=${username}&room=lobby`
+        }, 3000);
     })
 })
 

@@ -75,6 +75,8 @@ io.on('connection', (socket) => {
             }
             socket.to(user.room).emit('forfeit', { loser, winner })
         }
+        // else
+        //     removeUser(socket.id)
     })
 
     socket.on('sendInvitation', ({ sender, reciever, senderId, recieverId }, callback) => {
@@ -106,8 +108,9 @@ io.on('connection', (socket) => {
 
 
     socket.on('sendForfeit', ({ loser, winner, room }, callback) => {
-        io.to(room).emit('forfeit', { loser, winner })
+        socket.broadcast.to(room).emit('forfeit', { loser, winner })
         callback();
+
     })
 
     socket.on('move made', ({ boardBack, room }) => {

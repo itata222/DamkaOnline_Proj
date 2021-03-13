@@ -26,15 +26,15 @@ loginForm.addEventListener('submit', (event) => {
     })
         .then(response => response.json())
         .then(data => {
-            // console.log('Success:', data);
+            console.log('Success:', data);
             if (data.status) {
                 loginUsername.value = "";
                 loginPassword.value = "";
                 enterLobbyError('Unable to login')
             }
             else {
-                console.log(data)
                 sessionStorage.setItem('token', data.currentToken)
+                sessionStorage.setItem('myUserName', data.user.username)
                 location.href = `/lobby.html?username=${username}&room=lobby`
             }
         })
@@ -66,6 +66,7 @@ joinForm.addEventListener('submit', (event) => {
             else {
                 console.log(data)
                 sessionStorage.setItem('token', data.currentToken)
+                sessionStorage.setItem('myUserName', data.user.username)
                 location.href = `/lobby.html?username=${username}&room=lobby`
             }
         })

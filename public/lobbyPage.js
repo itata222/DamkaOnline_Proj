@@ -1,8 +1,7 @@
 const socket = io()
 const myStorage = window.localStorage;
-// myStorage.clear();
 const token = sessionStorage.getItem('token')
-console.log(token)
+const myUserName = sessionStorage.getItem('myUserName')
 const buttonSocket = document.querySelector('#increment')
 const inputText = document.getElementById('formInput');
 const formSocket = document.getElementById('formSocket')
@@ -26,6 +25,7 @@ const getUserUrl = '/get-user?username=' + username
 
 const myLobbyUrl = location.href
 
+
 const renderTop10Players = () => {
     const data = {}
     fetch('/lobby', {
@@ -37,6 +37,8 @@ const renderTop10Players = () => {
         body: JSON.stringify(data),
     })
         .then((res) => {
+            if (username !== myUserName)
+                location.href = '/'
             if (res.ok)
                 return res.json()
             else
@@ -58,7 +60,6 @@ const renderTop10Players = () => {
             topPlayersContainer.innerHTML = html
 
         }).catch((e) => {
-            alert(e)
             location.href = '/'
         })
 }
@@ -68,6 +69,8 @@ const getUser = () => {
     if (location.href !== myLobbyUrl && !location.href.includes('damka-game'))
         logoutFunc()
     fetch(getUserUrl).then((res) => {
+        if (username !== myUserName)
+            location.href = '/'
         if (res.ok)
             return res.json();
         else
@@ -77,13 +80,11 @@ const getUser = () => {
             localStorage.setItem(`${userReturned.username}-SocketId`, socketId)
             currentUserScore = userReturned.score
             if (error) {
-                alert(error)
                 location.href = "/"
             }
             renderTop10Players()
         })
     }).catch((err) => {
-        alert(err)
         location.href = '/'
     })
 }

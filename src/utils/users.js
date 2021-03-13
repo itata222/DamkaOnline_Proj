@@ -9,7 +9,7 @@ const addUserToRoom = ({ id, username, room, previousRoom, score, isWhite }) => 
         return { error: 'username and room are required!' }
 
     // const existingUser = users.find((user) => {
-    //     return user.username === username && user.room === room
+    //     return user.username === username
     // })
 
     // if (existingUser)

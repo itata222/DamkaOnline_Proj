@@ -74,9 +74,9 @@ router.patch('/change-users-score', async (req, res) => {
         console.log('why')
         const winner = await User.findOne({ username: req.body.winner })
         const loser = await User.findOne({ username: req.body.loser })
-        console.log('its')
+        console.log('77: its', winner, loser)
 
-        if (!winner || !loser)
+        if (winner == null || loser == undefined)
             return res.status(404).send({
                 message: "user not found"
             })
